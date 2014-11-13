@@ -408,7 +408,7 @@ class DockerManager:
                 if len(parts) == 2:
                     self.volumes[parts[1]] = {}
                     self.binds[parts[0]] = parts[1]
-                # with bind mode 
+                # with bind mode
                 elif len(parts) == 3:
                     if parts[2] not in ['ro', 'rw']:
                         self.module.fail_json(msg='bind mode needs to either be "ro" or "rw"')
@@ -574,7 +574,17 @@ class DockerManager:
             if i["Names"]:
                 name_matches = (name and name in i['Names'])
             image_matches = (running_image == image)
+
+            # images can and most likly have multiple tags associated
+            # find all tags of the given image and match agains all of them
             tag_matches = (not tag or running_tag == tag)
+            if not tag_matches:
+                for img in self.client.images(name=running_image):
+                    running_tags = (x.split(':', 1)[1] for x in img['RepoTags'])
+                    if tag in running_tags:
+                        tag_matches = True
+                        break
+
             # if a container has an entrypoint, `command` will actually equal
             # '{} {}'.format(entrypoint, command)
             command_matches = (not command or running_command.endswith(command))
