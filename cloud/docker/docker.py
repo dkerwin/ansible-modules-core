@@ -683,16 +683,15 @@ class DockerManager(object):
             name = '/' + name
         deployed = []
 
+        all_valid_tags = []
+        for img in self.client.images():
+            if image in img['RepoTags']:
+                for x in img['RepoTags']:
+                    all_valid_tags.append(x.split(':', 1)[1])
+
         # if we weren't given a tag with the image, we need to only compare on the image name, as that
         # docker will give us back the full image name including a tag in the container list if one exists.
         image, tag = get_split_image_tag(image)
-
-        # Get list of all images and create dict image_tag_map[image] = [tag1, tag2]
-        image_tag_map = defaultdict(list)
-        for i in self.client.images():
-            for t in i['RepoTags']:
-                a, b = t.split(':', 1)
-                image_tag_map[a].append(b)
 
         for i in self.client.containers(all=True):
             running_image, running_tag = get_split_image_tag(i['Image'])
@@ -704,7 +703,7 @@ class DockerManager(object):
             image_matches = (running_image == image)
 
             # images can and most probably have multiple tags associated
-            tag_matches = (not tag or running_tag == tag or running_tag in image_tag_map[running_image])
+            tag_matches = (not tag or running_tag == tag or running_tag in all_valid_tags)
 
             # if a container has an entrypoint, `command` will actually equal
             # '{} {}'.format(entrypoint, command)
