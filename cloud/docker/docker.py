@@ -356,6 +356,7 @@ HAS_DOCKER_PY = True
 
 import sys
 from urlparse import urlparse
+from collections import defaultdict
 try:
     import docker.client
     import docker.utils
@@ -686,6 +687,13 @@ class DockerManager(object):
         # docker will give us back the full image name including a tag in the container list if one exists.
         image, tag = get_split_image_tag(image)
 
+        # Get list of all images and create dict image_tag_map[image] = [tag1, tag2]
+        image_tag_map = defaultdict(list)
+        for i in self.client.images():
+            for t in i['RepoTags']:
+                a, b = t.split(':', 1)
+                image_tag_map[a].append(b)
+
         for i in self.client.containers(all=True):
             running_image, running_tag = get_split_image_tag(i['Image'])
             running_command = i['Command'].strip()
@@ -695,15 +703,8 @@ class DockerManager(object):
                 name_matches = (name and name in i['Names'])
             image_matches = (running_image == image)
 
-            # images can and most likly have multiple tags associated
-            # find all tags of the given image and match agains all of them
-            tag_matches = (not tag or running_tag == tag)
-            if not tag_matches:
-                for img in self.client.images(name=running_image):
-                    running_tags = (x.split(':', 1)[1] for x in img['RepoTags'])
-                    if tag in running_tags:
-                        tag_matches = True
-                        break
+            # images can and most probably have multiple tags associated
+            tag_matches = (not tag or running_tag == tag or running_tag in image_tag_map[running_image])
 
             # if a container has an entrypoint, `command` will actually equal
             # '{} {}'.format(entrypoint, command)
