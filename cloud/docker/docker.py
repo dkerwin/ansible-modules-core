@@ -204,6 +204,12 @@ options:
     default: ''
     aliases: []
     version_added: "1.8"
+  cpuset:
+    description:
+      - CPUs in which to allow execution. Requires docker-py >= 0.6.0.
+    required: false
+    default: null
+    version_added: "1.8"
 
 author: Cove Schneider, Joshua Conner, Pavel Antonov
 requirements: [ "docker-py >= 0.3.0", "docker >= 0.10.0" ]
@@ -408,7 +414,7 @@ class DockerManager:
                 if len(parts) == 2:
                     self.volumes[parts[1]] = {}
                     self.binds[parts[0]] = parts[1]
-                # with bind mode 
+                # with bind mode
                 elif len(parts) == 3:
                     if parts[2] not in ['ro', 'rw']:
                         self.module.fail_json(msg='bind mode needs to either be "ro" or "rw"')
@@ -612,6 +618,9 @@ class DockerManager:
             params['dns'] = self.module.params.get('dns')
             params['volumes_from'] = self.module.params.get('volumes_from')
 
+        if hasattr(docker, '__version__') and docker.__version__ >= '0.6.0':
+            params['cpuset'] = self.module.params.get('cpuset')
+
         def do_create(count, params):
             results = []
             for _ in range(count):
@@ -742,7 +751,8 @@ def main():
             tty             = dict(default=False, type='bool'),
             lxc_conf        = dict(default=None, type='list'),
             name            = dict(default=None),
-            net             = dict(default=None)
+            net             = dict(default=None),
+            cpuset          = dict(default=None)
         )
     )
 
