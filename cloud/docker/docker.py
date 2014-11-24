@@ -204,7 +204,7 @@ options:
     default: ''
     aliases: []
     version_added: "1.8"
-  cpuset:
+  cpu_set:
     description:
       - CPUs in which to allow execution. Requires docker-py >= 0.6.0.
     required: false
@@ -619,7 +619,7 @@ class DockerManager:
             params['volumes_from'] = self.module.params.get('volumes_from')
 
         if hasattr(docker, '__version__') and docker.__version__ >= '0.6.0':
-            params['cpuset'] = self.module.params.get('cpuset')
+            params['cpuset'] = self.module.params.get('cpu_set')
 
         def do_create(count, params):
             results = []
@@ -752,7 +752,7 @@ def main():
             lxc_conf        = dict(default=None, type='list'),
             name            = dict(default=None),
             net             = dict(default=None),
-            cpuset          = dict(default=None)
+            cpu_set         = dict(default=None)
         )
     )
 
