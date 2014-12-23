@@ -356,7 +356,6 @@ HAS_DOCKER_PY = True
 
 import sys
 from urlparse import urlparse
-from collections import defaultdict
 try:
     import docker.client
     import docker.utils
@@ -683,11 +682,9 @@ class DockerManager(object):
             name = '/' + name
         deployed = []
 
-        all_valid_tags = []
         for img in self.client.images():
             if image in img['RepoTags']:
-                for x in img['RepoTags']:
-                    all_valid_tags.append(x.split(':', 1)[1])
+                all_valid_tags = set(x.rsplit(':', 1)[1] for x in img['RepoTags'])
 
         # if we weren't given a tag with the image, we need to only compare on the image name, as that
         # docker will give us back the full image name including a tag in the container list if one exists.
@@ -703,7 +700,7 @@ class DockerManager(object):
             image_matches = (running_image == image)
 
             # images can and most probably have multiple tags associated
-            tag_matches = (not tag or running_tag == tag or running_tag in all_valid_tags)
+            tag_matches = (not tag or running_tag in all_valid_tags)
 
             # if a container has an entrypoint, `command` will actually equal
             # '{} {}'.format(entrypoint, command)
