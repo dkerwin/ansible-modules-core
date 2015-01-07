@@ -210,6 +210,7 @@ options:
     default: ''
     aliases: []
     version_added: "1.8"
+<<<<<<< HEAD
   restart_policy:
     description:
       - Set the container restart policy
@@ -231,6 +232,12 @@ options:
     default: false
     aliases: []
     version_added: "1.9"
+  cpu_set:
+    description:
+      - CPUs in which to allow execution. Requires docker-py >= 0.6.0.
+    required: false
+    default: null
+    version_added: "1.8"
 
 author: Cove Schneider, Joshua Conner, Pavel Antonov
 requirements: [ "docker-py >= 0.3.0", "docker >= 0.10.0" ]
@@ -748,6 +755,9 @@ class DockerManager(object):
             if self.ensure_capability('insecure_registry', fail=False):
                 extra_params['insecure_registry'] = self.module.params.get('insecure_registry')
 
+        if hasattr(docker, '__version__') and docker.__version__ >= '0.6.0':
+            params['cpuset'] = self.module.params.get('cpu_set')
+
         def do_create(count, params):
             results = []
             for _ in range(count):
@@ -872,6 +882,7 @@ def main():
             name            = dict(default=None),
             net             = dict(default=None),
             insecure_registry = dict(default=False, type='bool'),
+            cpu_set         = dict(default=None)
         )
     )
 
