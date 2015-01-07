@@ -488,7 +488,7 @@ class DockerManager(object):
                 if len(parts) == 2:
                     self.volumes[parts[1]] = {}
                     self.binds[parts[0]] = parts[1]
-                # with bind mode 
+                # with bind mode
                 elif len(parts) == 3:
                     if parts[2] not in ['ro', 'rw']:
                         self.module.fail_json(msg='bind mode needs to either be "ro" or "rw"')
@@ -682,6 +682,10 @@ class DockerManager(object):
             name = '/' + name
         deployed = []
 
+        for img in self.client.images():
+            if image in img['RepoTags']:
+                all_valid_tags = set(x.rsplit(':', 1)[1] for x in img['RepoTags'])
+
         # if we weren't given a tag with the image, we need to only compare on the image name, as that
         # docker will give us back the full image name including a tag in the container list if one exists.
         image, tag = get_split_image_tag(image)
@@ -694,7 +698,10 @@ class DockerManager(object):
             if i["Names"]:
                 name_matches = (name and name in i['Names'])
             image_matches = (running_image == image)
-            tag_matches = (not tag or running_tag == tag)
+
+            # images can and most probably have multiple tags associated
+            tag_matches = (not tag or running_tag in all_valid_tags)
+
             # if a container has an entrypoint, `command` will actually equal
             # '{} {}'.format(entrypoint, command)
             command_matches = (not command or running_command.endswith(command))
