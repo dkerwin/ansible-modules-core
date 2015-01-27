@@ -688,6 +688,7 @@ class DockerManager(object):
         if name and not name.startswith('/'):
             name = '/' + name
         deployed = []
+        all_valid_tags = set()
 
         for img in self.client.images():
             if image in img['RepoTags']:
