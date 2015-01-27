@@ -686,6 +686,7 @@ class DockerManager(object):
         for img in self.client.images():
             if image in img['RepoTags']:
                 all_valid_tags = set(x.rsplit(':', 1)[1] for x in img['RepoTags'])
+                break
 
         # if we weren't given a tag with the image, we need to only compare on the image name, as that
         # docker will give us back the full image name including a tag in the container list if one exists.
