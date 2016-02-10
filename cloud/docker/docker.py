@@ -384,6 +384,9 @@ options:
       - ulimits, list ulimits with name, soft and optionally
         hard limit separated by colons. e.g. nofile:1024:2048
         Requires docker-py >= 1.2.0 and docker >= 1.6.0
+  shm_size:
+    description:
+      - Set the size of /dev/shm. Requires docker >= 1.10 and docker-py >= 1.8.0
     required: false
     default: null
     version_added: "2.1"
@@ -689,6 +692,7 @@ class DockerManager(object):
             'labels': ((1, 2, 0), '1.18'),
             'stop_timeout': ((0, 5, 0), '1.0'),
             'ulimits': ((1, 2, 0), '1.18'),
+            'shm_size': ((1, 8, 0), '1.22'),
             # Clientside only
             'insecure_registry': ((0, 5, 0), '0.0'),
             'env_file': ((1, 4, 0), '0.0')
@@ -952,7 +956,7 @@ class DockerManager(object):
         optionals = {}
         for optional_param in ('devices', 'dns', 'volumes_from',
                 'restart_policy', 'restart_policy_retry', 'pid', 'extra_hosts',
-                'log_driver', 'cap_add', 'cap_drop', 'read_only', 'log_opt'):
+                'log_driver', 'cap_add', 'cap_drop', 'read_only', 'log_opt', 'shm_size'):
             optionals[optional_param] = self.module.params.get(optional_param)
 
         if optionals['devices'] is not None:
@@ -1005,6 +1009,10 @@ class DockerManager(object):
         if optionals['read_only'] is not None:
             self.ensure_capability('read_only')
             params['read_only'] = optionals['read_only']
+
+        if optionals['shm_size'] is not None:
+            self.ensure_capability('shm_size')
+            params['shm_size'] = optionals['shm_size']
 
         return params
 
@@ -1853,6 +1861,7 @@ def main():
             memory_limit    = dict(default=0, type='int'),
             memory_swap     = dict(default=0, type='int'),
             cpu_shares      = dict(default=0, type='int'),
+            shm_size        = dict(default=None, type='string')
             docker_url      = dict(),
             use_tls         = dict(default=None, choices=['no', 'encrypt', 'verify']),
             tls_client_cert = dict(required=False, default=None, type='path'),
