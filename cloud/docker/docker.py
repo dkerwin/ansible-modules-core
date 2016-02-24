@@ -386,7 +386,7 @@ options:
         Requires docker-py >= 1.2.0 and docker >= 1.6.0
   shm_size:
     description:
-      - Set the size of /dev/shm. Requires docker >= 1.10 and docker-py >= 1.8.0
+      - Set the size of /dev/shm. Requires docker >= 1.10 and docker-py >= 1.7.1
     required: false
     default: null
     version_added: "2.1"
@@ -692,7 +692,7 @@ class DockerManager(object):
             'labels': ((1, 2, 0), '1.18'),
             'stop_timeout': ((0, 5, 0), '1.0'),
             'ulimits': ((1, 2, 0), '1.18'),
-            'shm_size': ((1, 8, 0), '1.22'),
+            'shm_size': ((1, 7, 1), '1.22'),
             # Clientside only
             'insecure_registry': ((0, 5, 0), '0.0'),
             'env_file': ((1, 4, 0), '0.0')
