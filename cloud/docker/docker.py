@@ -1861,7 +1861,7 @@ def main():
             memory_limit    = dict(default=0, type='int'),
             memory_swap     = dict(default=0, type='int'),
             cpu_shares      = dict(default=0, type='int'),
-            shm_size        = dict(default=None, type='string')
+            shm_size        = dict(default=None, type='string'),
             docker_url      = dict(),
             use_tls         = dict(default=None, choices=['no', 'encrypt', 'verify']),
             tls_client_cert = dict(required=False, default=None, type='path'),
