@@ -389,7 +389,7 @@ options:
       - Set the size of /dev/shm. Requires docker >= 1.10 and docker-py >= 1.7.1
     required: false
     default: null
-    version_added: "2.1"
+    version_added: "2.2"
 
 author:
     - "Cove Schneider (@cove)"
